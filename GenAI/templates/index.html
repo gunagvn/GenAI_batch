@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Text Generator (GPT-2)</title>
+  <style>
+    /* ---------- GLOBAL STYLES ---------- */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #6a11cb, #2575fc);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* ---------- CARD CONTAINER ---------- */
+    .container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+      padding: 40px;
+      width: 90%;
+      max-width: 600px;
+      text-align: center;
+      color: white;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- HEADER ---------- */
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      letter-spacing: 1px;
+    }
+
+    /* ---------- INPUT ---------- */
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      margin-bottom: 20px;
+    }
+
+    /* ---------- BUTTON ---------- */
+    button {
+      background: #fff;
+      color: #2575fc;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #2575fc;
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    /* ---------- OUTPUT BOX ---------- */
+    .output-box {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 25px;
+      text-align: left;
+      white-space: pre-wrap;
+      line-height: 1.5;
+      color: #f5f5f5;
+      font-size: 16px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    /* ---------- LOADING TEXT ---------- */
+    .loading {
+      color: #ffd700;
+      font-style: italic;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0.6; }
+    }
+
+    /* ---------- FOOTER ---------- */
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 AI Text Generator</h1>
+    <input type="text" id="topic" placeholder="Enter a topic (e.g., space exploration)">
+    <button onclick="generateText()">✨ Generate Text</button>
+
+    <div class="output-box" id="output">Your AI-generated text will appear here...</div>
+
+    <footer>Powered by GPT-2 | Built with Flask & Transformers</footer>
+  </div>
+
+  <script>
+    async function generateText() {
+      const topic = document.getElementById("topic").value;
+      const output = document.getElementById("output");
+      if (!topic.trim()) {
+        output.innerText = "⚠️ Please enter a topic first.";
+        return;
+      }
+
+      output.innerHTML = "<span class='loading'>⏳ Generating text...</span>";
+
+      const response = await fetch("/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic })
+      });
+
+      const data = await response.json();
+      output.innerText = data.generated_text;
+    }
+  </script>
+</body>
+</html>

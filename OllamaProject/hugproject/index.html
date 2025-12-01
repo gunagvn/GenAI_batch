@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chat Assistant</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f6fa;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+      padding: 20px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    main {
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    #chat-box {
+      height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 10px;
+      background: #fafafa;
+    }
+    .msg {
+      margin: 10px 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      max-width: 80%;
+    }
+    .user {
+      background: #007bff;
+      color: white;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+    .bot {
+      background: #e9ecef;
+      color: black;
+    }
+    #input-area {
+      display: flex;
+      margin-top: 15px;
+    }
+    input {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <header>💬 AI Storytelling Chat Generator</header>
+  <main>
+    <div id="chat-box"></div>
+    <div id="input-area">
+      <input id="userInput" placeholder="Type your message..." onkeypress="if(event.key==='Enter') sendMessage()">
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = "http://127.0.0.1:7860/api/chat";
+    const chatBox = document.getElementById("chat-box");
+
+    function appendMessage(text, sender) {
+      const div = document.createElement("div");
+      div.className = "msg " + sender;
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("userInput");
+      const text = input.value.trim();
+      if (!text) return;
+      appendMessage(text, "user");
+      input.value = "";
+
+      appendMessage("⏳ Thinking...", "bot");
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text }),
+        });
+
+        const data = await response.json();
+        chatBox.lastChild.remove(); // remove "Thinking..."
+        if (data.ok) {
+          appendMessage(data.reply, "bot");
+        } else {
+          appendMessage("❌ Error: " + data.error, "bot");
+        }
+      } catch (err) {
+        chatBox.lastChild.remove();
+        appendMessage("⚠️ Network error: " + err.message, "bot");
+      }
+    }
+  </script>
+</body>
+</html>
